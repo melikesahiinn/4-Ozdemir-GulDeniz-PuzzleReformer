@@ -1,0 +1,27 @@
+# build outputs
+build/
+build_vs/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Visual Studio (if generated)
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# binaries
+*.exe
+*.app
+*.dSYM
