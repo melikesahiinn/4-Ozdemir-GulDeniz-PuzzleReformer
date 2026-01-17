@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "game.h"
 
 int main() {
     const int W = 1000;
@@ -7,11 +8,16 @@ int main() {
     InitWindow(W, H, "Tile Rotation Puzzle");
     SetTargetFPS(60);
 
+    Game game(W, H);
+    game.Init();
+
     while (!WindowShouldClose()) {
+        float dt = GetFrameTime();
+        game.Update(dt);
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawText("Raylib is working!", 40, 40, 30, DARKGRAY);
-        DrawText(TextFormat("FPS: %d", GetFPS()), 40, 90, 22, GRAY);
+        game.Draw();
         EndDrawing();
     }
 
