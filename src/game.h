@@ -11,6 +11,17 @@ public:
     void Draw();
 
 private:
+    // --- polish: fade transition ---
+    bool m_inTransition = false;
+    GameState m_nextState = GameState::MainMenu;
+    float m_fade = 0.0f;      // 0..1
+    bool m_fadeOut = true;    // fade to black then back
+    float m_fadeSpeed = 2.5f; // speed factor
+
+    void StartTransition(GameState next);
+    void UpdateTransition(float dt);
+    void DrawFadeOverlay() const;
+
     void LoadLevel(int index);
     void ResetLevel();
     void NextLevel();

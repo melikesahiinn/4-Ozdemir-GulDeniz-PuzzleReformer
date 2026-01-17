@@ -9,7 +9,7 @@ Game::Game(int screenW, int screenH) : m_w(screenW), m_h(screenH) {}
 void Game::Init() {
     m_totalLevels = (int)GetAllLevels().size();
     LoadLevel(0);
-    m_state = GameState::MainMenu;
+    StartTransition(GameState::MainMenu);
 }
 
 void Game::LoadLevel(int index) {
@@ -30,19 +30,25 @@ void Game::ResetLevel() {
 void Game::NextLevel() {
     int next = m_levelIndex + 1;
     if (next >= m_totalLevels) {
-        m_state = GameState::MainMenu;
+        StartTransition(GameState::MainMenu);
         LoadLevel(0);
         return;
     }
     LoadLevel(next);
-    m_state = GameState::Playing;
+    StartTransition(GameState::Playing);
 }
 
 void Game::Update(float dt) {
-    switch (m_state) {
-        case GameState::MainMenu:      UpdateMainMenu(); break;
-        case GameState::Playing:       UpdatePlaying(dt); break;
-        case GameState::LevelComplete: UpdateLevelComplete(); break;
+    UpdateTransition(dt);
+
+    if (!m_inTransition) {
+        switch (m_state) {
+            case GameState::MainMenu:      UpdateMainMenu(); break;
+            case GameState::Playing:       UpdatePlaying(dt); break;
+            case GameState::LevelComplete: UpdateLevelComplete(); break;
+        }
+    } else {
+        if (m_state == GameState::Playing) m_grid.Update(dt);
     }
 }
 
@@ -51,9 +57,9 @@ void Game::UpdateMainMenu() {
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 mp = GetMousePosition();
-        if (CheckCollisionPointRec(mp, btn)) m_state = GameState::Playing;
+        if (CheckCollisionPointRec(mp, btn)) StartTransition(GameState::Playing);
     }
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) m_state = GameState::Playing;
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) StartTransition(GameState::Playing);
 }
 
 void Game::UpdatePlaying(float dt) {
@@ -77,7 +83,7 @@ void Game::UpdatePlaying(float dt) {
     }
 
     if (m_grid.IsSolved()) {
-        m_state = GameState::LevelComplete;
+        StartTransition(GameState::LevelComplete);
     }
 }
 
@@ -85,10 +91,10 @@ void Game::UpdateLevelComplete() {
     if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) NextLevel();
     if (IsKeyPressed(KEY_BACKSPACE)) {
         ResetLevel();
-        m_state = GameState::Playing;
+        StartTransition(GameState::Playing);
     }
     if (IsKeyPressed(KEY_ESCAPE)) {
-        m_state = GameState::MainMenu;
+        StartTransition(GameState::MainMenu);
     }
 }
 
@@ -100,6 +106,8 @@ void Game::Draw() {
     }
 
     DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
+
+    DrawFadeOverlay();
 }
 
 void Game::DrawMainMenu() {
@@ -127,11 +135,49 @@ void Game::DrawLevelComplete() {
     DrawPlaying();
 
     Rectangle panel = { (float)m_w/2 - 230, (float)m_h/2 - 95, 460, 190 };
-    DrawRectangleRounded(panel, 0.15f, 12, Fade(BLACK, 0.12f));
-    DrawRectangleRoundedLines(panel, 0.15f, 12, Fade(BLACK, 0.25f));
+
+    float t = (float)GetTime();
+    float s = 1.0f + 0.02f * sinf(t * 8.0f);
+    Vector2 center = { panel.x + panel.width/2, panel.y + panel.height/2 };
+    Rectangle p2 = { center.x - panel.width*s/2, center.y - panel.height*s/2, panel.width*s, panel.height*s };
+
+    DrawRectangleRounded(p2, 0.15f, 12, Fade(BLACK, 0.12f));
+    DrawRectangleRoundedLines(p2, 0.15f, 12, Fade(BLACK, 0.25f));
 
     DrawText("LEVEL COMPLETE!", (int)panel.x + 85, (int)panel.y + 30, 32, BLACK);
     DrawText("Space/Enter: Next Level", (int)panel.x + 105, (int)panel.y + 85, 20, DARKGRAY);
     DrawText("Backspace: Restart", (int)panel.x + 135, (int)panel.y + 115, 20, DARKGRAY);
     DrawText("Esc: Main Menu", (int)panel.x + 155, (int)panel.y + 145, 20, DARKGRAY);
+}
+
+void Game::StartTransition(GameState next) {
+    m_inTransition = true;
+    m_nextState = next;
+    m_fadeOut = true;
+    m_fade = 0.0f;
+}
+
+void Game::UpdateTransition(float dt) {
+    if (!m_inTransition) return;
+
+    if (m_fadeOut) {
+        m_fade += dt * m_fadeSpeed;
+        if (m_fade >= 1.0f) {
+            m_fade = 1.0f;
+            // swap state at full black
+            m_state = m_nextState;
+            m_fadeOut = false;
+        }
+    } else {
+        m_fade -= dt * m_fadeSpeed;
+        if (m_fade <= 0.0f) {
+            m_fade = 0.0f;
+            m_inTransition = false;
+        }
+    }
+}
+
+void Game::DrawFadeOverlay() const {
+    if (m_fade <= 0.0f) return;
+    DrawRectangle(0, 0, m_w, m_h, Fade(BLACK, m_fade));
 }
