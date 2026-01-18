@@ -52,6 +52,17 @@ rotation with its predefined correct rotation. Grid-level validation
 is performed by iterating through all tiles to ensure that every tile
 is correctly aligned before declaring the level complete.
 
+### 4.6 Level-Specific Constraints (Levels 4–5)
+
+Locked Tiles (Level 4):
+- Some tiles are locked and cannot be selected or rotated.
+- Locked tiles are displayed with a red X overlay and remain fixed during gameplay.
+
+Move Limit (Level 5):
+- Level 5 introduces a move limit (rotation count).
+- If the player exceeds the allowed number of moves, the level resets to its initial state.
+
+
 ---
 
 ## 5. Game States
