@@ -76,7 +76,7 @@ The game uses a state machine system:
 
 ## 6. Level Design
 
-### Level Progression
+### 6.1 Level Progression
 | Level | Grid Size | Difficulty |
 |------|----------|------------|
 | 1 | 3×3 | Easy (tutorial) |
@@ -86,6 +86,15 @@ The game uses a state machine system:
 | 5 | 7×7 | Final (move limit challenge) |
 
 Difficulty increases with grid size and number of tiles.
+
+6.2 Level System Architecture
+
+The game uses a data-driven level system in which each level is fully defined by a centralized LevelDef structure. This structure specifies not only the grid size and tile rotation data, but also level-specific gameplay rules such as locked tiles, move limits, and initial hint availability.
+
+All level configurations are stored in a dedicated levels module (levels.h / levels.cpp). The Game module does not contain any hard-coded level logic; instead, it dynamically applies the rules provided by the currently loaded level definition. This design ensures a clean separation of concerns between game flow control and level design.
+
+By externalizing level rules into data, the system allows new levels or rule variations to be added without modifying the core game loop. This approach improves maintainability, scalability, and team collaboration by clearly isolating level design responsibilities.
+
 
 ---
 
