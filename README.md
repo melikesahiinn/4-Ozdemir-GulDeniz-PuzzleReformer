@@ -81,3 +81,4 @@ The codebase is modular and organized across multiple source files following cou
 - Puzzle: Evaluates the win condition by querying the Grid and determining
   whether the puzzle is solved.
 - Game / UI: Handles game states, rendering, and player feedback.
+- Level System (Data-Driven Design): Levels are defined using a centralized data structure that includes grid size, initial tile states, correct orientations, and level-specific gameplay constraints. Special rules such as locked tiles (Level 4), move limits (Level 5), and initial hint availability are stored as level data rather than being hard-coded into the game loop. The Game module dynamically applies these rules when loading each level, ensuring clean separation between level design and core gameplay logic.
