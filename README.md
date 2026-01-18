@@ -81,3 +81,20 @@ The codebase is modular and organized across multiple source files following cou
 - Puzzle: Evaluates the win condition by querying the Grid and determining
   whether the puzzle is solved.
 - Game / UI: Handles game states, rendering, and player feedback.
+
+ ### Level System
+
+The game uses a data-driven level system defined in levels.h and levels.cpp.
+
+Each level is represented by a LevelDef structure that specifies:
+- Grid size (N×N)
+- Tile size
+- Correct tile rotations
+- Initial tile rotations
+
+All levels are stored centrally and loaded dynamically by the game loop.  
+This design allows new levels to be added or modified without changing core gameplay code.
+
+Level-Specific Rules:
+- Level 4 introduces locked tiles that cannot be selected or rotated.
+- Level 5 enforces a move limit; exceeding the limit resets the level.
