@@ -41,13 +41,16 @@ Puzzle
 - All tiles must be aligned correctly to finish the level.
 - Completion triggers the Level Complete screen.
 
-### 4.5 Locked Tiles (Level 4)
-- Some tiles are locked and cannot be selected or rotated.
-- Locked tiles are displayed with a red X overlay and are pre-aligned correctly.
+### 4.5 Puzzle Validation Logic
 
-### 4.6 Move Limit (Level 5)
-- Level 5 introduces a move limit.
-- Exceeding the move limit resets the level.
+Puzzle validation is handled through a dedicated Puzzle module.
+This module is responsible for determining whether the current grid
+state satisfies the win condition.
+
+Tile-level correctness is evaluated by comparing each tile’s current
+rotation with its predefined correct rotation. Grid-level validation
+is performed by iterating through all tiles to ensure that every tile
+is correctly aligned before declaring the level complete.
 
 ---
 
@@ -106,7 +109,10 @@ Difficulty increases with grid size and number of tiles.
 - Version control: GitHub with incremental commits
 - Grid system: **grid.h / grid.cpp** manages grid layout, selection logic, rotation calls, drawing, and solve-check iteration.
 - Tile system: **tile.h / tile.cpp** defines tile data (current/correct rotation, selection state) and supports animated 90° rotation rendering.
-- Special level rules: Level 4 uses locked tile indices; Level 5 enforces a move counter and move limit in the game loop.
+- Puzzle system: **puzzle.h / puzzle.cpp** implements win-condition
+  validation by acting as an orchestration layer between the Grid and
+  Tile systems. This module ensures clean separation between gameplay
+  logic and rendering or input handling.
 
 ---
 
