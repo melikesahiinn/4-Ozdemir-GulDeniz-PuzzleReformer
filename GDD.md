@@ -34,6 +34,7 @@ Puzzle
 ### 4.3 Correct Orientation Check
 - Each tile has a predefined correct rotation.
 - When all tiles match their correct orientation, the level is completed.
+- Hint mode (**H**) can optionally display each tile’s correct rotation for assistance/debugging.
 
 ### 4.4 Win Condition
 - All tiles must be aligned correctly to finish the level.
@@ -92,6 +93,8 @@ Difficulty increases with grid size and number of tiles.
 - Architecture: Modular multi-file structure
 - Frame rate: Fixed at 60 FPS
 - Version control: GitHub with incremental commits
+- Grid system: **grid.h / grid.cpp** manages grid layout, selection logic, rotation calls, drawing, and solve-check iteration.
+- Tile system: **tile.h / tile.cpp** defines tile data (current/correct rotation, selection state) and supports animated 90° rotation rendering.
 
 ---
 
