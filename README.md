@@ -32,12 +32,13 @@ Difficulty increases by grid size and number of tiles.
 ---
 
 ##  Features
-- Grid-based rotation puzzle system
-- Multiple difficulty levels
-- Smooth tile rotation animation
-- Visual feedback for correct tiles
-- Move counter and hint system
-- Modular C++ architecture
+- Grid & Tile system (select / rotate / draw)
+- Smooth 90° rotation animation
+- Correct-orientation validation (solve check)
+- Visual feedback (selected tile + correct tiles)
+- Hint toggle (show correct rotations)
+- Modular C++ architecture (separate game/grid/tile modules)
+- Level progression (3×3 → 4×4 → 5×5)
 - 60 FPS fixed game loop
 ---
 
@@ -49,6 +50,16 @@ brew install raylib cmake
 cmake -S . -B build
 cmake --build build
 ./build/TileRotationPuzzle
+```
+
+### Windows (MSYS2 MinGW64)
+# In the MSYS2 MinGW64 terminal
+pacman -S --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-raylib
+
+cmake -S . -B build -G "MinGW Makefiles"
+cmake --build build
+./build/TileRotationPuzzle.exe
+
 
 ---
 
