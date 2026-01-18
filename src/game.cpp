@@ -22,36 +22,25 @@ void Game::LoadLevel(int index) {
     int originX = (m_w - gridPx) / 2;
     int originY = (m_h - gridPx) / 2 + 40;
 
-    m_grid.ApplyLevel(lvl.n, lvl.tileSize, originX, originY, lvl.correct, lvl.start);
+    // Apply base level data
+    m_grid.ApplyLevel(
+        lvl.n,
+        lvl.tileSize,
+        originX,
+        originY,
+        lvl.correct,
+        lvl.start
+    );
 
-    // --- NEW: per-level rule state reset ---
+    // Reset per-level runtime state
     m_moves = 0;
     m_moveLimit = -1;
     m_limitMsgT = 0.0f;
 
-    // Helper for (r,c) -> index
-    auto idx = [&](int r, int c) { return r * lvl.n + c; };
-
-    // --- NEW: Level 4 rule (locked tiles introduced) ---
-    // Level numbers are 1-based in UI, but m_levelIndex is 0-based.
-    if (m_levelIndex == 3) { // Level 4
-        int n = lvl.n; // expected 6
-        int mid1 = n / 2 - 1;
-        int mid2 = n / 2;
-
-        std::vector<int> locks = {
-            idx(0,0), idx(0,n-1), idx(n-1,0), idx(n-1,n-1),     // corners
-            idx(mid1,mid1), idx(mid1,mid2), idx(mid2,mid1), idx(mid2,mid2) // center 2x2
-        };
-
-        m_grid.SetLocked(locks, true);
-    }
-
-    // --- NEW: Level 5 rule (final test: move limit) ---
-    if (m_levelIndex == 4) { // Level 5
-        m_moveLimit = lvl.n * lvl.n * 2; // e.g., 7*7*2 = 98
-        m_showHint = false;              // start harder; player can toggle with H
-    }
+    // APPLY LEVEL-SPECIFIC RULES FROM DATA (KİŞİ 4)
+    m_grid.SetLocked(lvl.lockedTiles, true);
+    m_moveLimit = lvl.moveLimit;
+    m_showHint  = lvl.hintEnabled;
 }
 
 void Game::ResetLevel() {
@@ -88,15 +77,18 @@ void Game::UpdateMainMenu() {
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 mp = GetMousePosition();
-        if (CheckCollisionPointRec(mp, btn)) StartTransition(GameState::Playing);
+        if (CheckCollisionPointRec(mp, btn))
+            StartTransition(GameState::Playing);
     }
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) StartTransition(GameState::Playing);
+
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+        StartTransition(GameState::Playing);
 }
 
 void Game::UpdatePlaying(float dt) {
     m_grid.Update(dt);
 
-    // NEW: message timer decay
+    // Message timer decay
     if (m_limitMsgT > 0.0f) {
         m_limitMsgT -= dt;
         if (m_limitMsgT < 0.0f) m_limitMsgT = 0.0f;
@@ -111,10 +103,10 @@ void Game::UpdatePlaying(float dt) {
         if (m_grid.RotateSelected()) {
             m_moves++;
 
-            // NEW: Level 5 move limit enforcement
+            // Move limit enforcement (data-driven)
             if (m_moveLimit > 0 && m_moves > m_moveLimit) {
                 ResetLevel();
-                m_limitMsgT = 1.6f; // show warning after reset
+                m_limitMsgT = 1.6f;
             }
         }
     }
@@ -134,11 +126,14 @@ void Game::UpdatePlaying(float dt) {
 }
 
 void Game::UpdateLevelComplete() {
-    if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) NextLevel();
+    if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER))
+        NextLevel();
+
     if (IsKeyPressed(KEY_BACKSPACE)) {
         ResetLevel();
         StartTransition(GameState::Playing);
     }
+
     if (IsKeyPressed(KEY_ESCAPE)) {
         StartTransition(GameState::MainMenu);
     }
@@ -170,18 +165,22 @@ void Game::DrawMainMenu() {
 }
 
 void Game::DrawPlaying() {
-    DrawText(TextFormat("Level %d / %d", m_levelIndex + 1, m_totalLevels), 20, 40, 26, BLACK);
-    DrawText("R: rotate | Backspace: reset | H: hint", 20, 70, 18, DARKGRAY);
+    DrawText(TextFormat("Level %d / %d", m_levelIndex + 1, m_totalLevels),
+             20, 40, 26, BLACK);
+    DrawText("R: rotate | Backspace: reset | H: hint",
+             20, 70, 18, DARKGRAY);
 
-    // NEW: move counter display
     if (m_moveLimit > 0) {
-        DrawText(TextFormat("Moves: %d / %d", m_moves, m_moveLimit), 20, 95, 18, DARKGRAY);
+        DrawText(TextFormat("Moves: %d / %d", m_moves, m_moveLimit),
+                 20, 95, 18, DARKGRAY);
     } else {
-        DrawText(TextFormat("Moves: %d", m_moves), 20, 95, 18, DARKGRAY);
+        DrawText(TextFormat("Moves: %d", m_moves),
+                 20, 95, 18, DARKGRAY);
     }
 
     if (m_limitMsgT > 0.0f) {
-        DrawText("Move limit exceeded! Level reset.", 20, 120, 18, RED);
+        DrawText("Move limit exceeded! Level reset.",
+                 20, 120, 18, RED);
     }
 
     m_grid.Draw(m_showHint);
@@ -190,12 +189,26 @@ void Game::DrawPlaying() {
 void Game::DrawLevelComplete() {
     DrawPlaying();
 
-    Rectangle panel = { (float)m_w/2 - 230, (float)m_h/2 - 95, 460, 190 };
+    Rectangle panel = {
+        (float)m_w/2 - 230,
+        (float)m_h/2 - 95,
+        460, 190
+    };
 
     float t = (float)GetTime();
     float s = 1.0f + 0.02f * sinf(t * 8.0f);
-    Vector2 center = { panel.x + panel.width/2, panel.y + panel.height/2 };
-    Rectangle p2 = { center.x - panel.width*s/2, center.y - panel.height*s/2, panel.width*s, panel.height*s };
+
+    Vector2 center = {
+        panel.x + panel.width / 2,
+        panel.y + panel.height / 2
+    };
+
+    Rectangle p2 = {
+        center.x - panel.width * s / 2,
+        center.y - panel.height * s / 2,
+        panel.width * s,
+        panel.height * s
+    };
 
     DrawRectangleRounded(p2, 0.15f, 12, Fade(BLACK, 0.12f));
     DrawRectangleRoundedLines(p2, 0.15f, 12, Fade(BLACK, 0.25f));
@@ -220,7 +233,6 @@ void Game::UpdateTransition(float dt) {
         m_fade += dt * m_fadeSpeed;
         if (m_fade >= 1.0f) {
             m_fade = 1.0f;
-            // swap state at full black
             m_state = m_nextState;
             m_fadeOut = false;
         }
