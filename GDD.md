@@ -87,6 +87,27 @@ The game uses a state machine system:
 
 Difficulty increases with grid size and number of tiles.
 
+### 6.1 Level System Design
+
+The game uses a data-driven level system to manage progression and difficulty in a scalable manner.
+Each level is defined using a dedicated data structure that includes:
+Grid size (N×N)
+Tile size
+Correct rotation values for each tile
+Initial rotation values for each tile
+All level definitions are stored centrally and loaded dynamically by the game loop.
+This approach separates level content from gameplay logic, allowing new levels to be added without modifying core systems.
+Level-Specific Rules
+Some levels introduce additional constraints to increase challenge:
+Locked Tiles (Level 4)
+Certain tiles are locked in their correct orientation and cannot be selected or rotated.
+These tiles act as fixed anchors and require the player to reason around immovable elements.
+Move Limit (Level 5)
+A maximum number of allowed rotations is enforced.
+If the player exceeds this limit, the level is reset to its initial configuration.
+This rule encourages optimization and strategic planning.
+This modular level system improves maintainability and clearly demonstrates separation of responsibilities within the project.
+
 ---
 
 ## 7. Controls
