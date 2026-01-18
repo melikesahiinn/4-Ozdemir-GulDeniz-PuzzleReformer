@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(TileRotationPuzzle LANGUAGES CXX)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,6 +11,7 @@ add_executable(TileRotationPuzzle
     src/main.cpp
     src/game.cpp
     src/grid.cpp
+    src/tile.cpp
     src/levels.cpp
     src/ui.cpp
     src/audio.cpp

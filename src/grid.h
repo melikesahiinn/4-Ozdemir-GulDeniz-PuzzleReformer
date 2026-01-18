@@ -1,17 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
-
-struct Tile {
-    int rotation = 0;        // 0..3
-    int correctRotation = 0; // 0..3
-    bool selected = false;
-
-    // simple rotate animation
-    float animT = 1.0f; // 0..1
-    int animFrom = 0;
-    int animTo = 0;
-};
+#include "tile.h"   
 
 class Grid {
 public:
@@ -31,7 +21,6 @@ public:
 
 private:
     Rectangle TileRect(int index) const;
-    Vector2 TileCenter(int index) const;
 
 private:
     int m_n = 0;

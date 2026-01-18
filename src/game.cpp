@@ -3,6 +3,7 @@
 #include "ui.h"
 #include "raylib.h"
 #include <algorithm>
+#include <cmath>
 
 Game::Game(int screenW, int screenH) : m_w(screenW), m_h(screenH) {}
 
@@ -107,8 +108,12 @@ void Game::Draw() {
 
     DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
 
+    
+
     DrawFadeOverlay();
 }
+
+
 
 void Game::DrawMainMenu() {
     DrawText("TILE ROTATION PUZZLE", m_w/2 - 220, 120, 42, BLACK);
