@@ -66,3 +66,12 @@ cmake --build build
 ## Development Notes
 This project was developed incrementally with frequent Git commits to reflect a clean and traceable development process.  
 The codebase is modular and organized across multiple source files following course guidelines.
+
+---
+
+### Architecture Overview
+- Tile: Handles individual tile rotation state and correctness checks.
+- Grid: Manages tile layout, user interaction, and grid-level validation.
+- Puzzle: Evaluates the win condition by querying the Grid and determining
+  whether the puzzle is solved.
+- Game / UI: Handles game states, rendering, and player feedback.
