@@ -6,6 +6,8 @@ struct Tile {
     int correctRotation = 0; // 0..3
     bool selected = false;
 
+    bool locked = false;
+
     // simple rotate animation
     float animT = 1.0f; // 0..1
     int animFrom = 0;

@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
-#include "tile.h"   
+#include "tile.h"
 
 class Grid {
 public:
@@ -18,6 +18,9 @@ public:
     void Select(int index);
     bool RotateSelected(); // returns true if rotated
     bool IsSolved() const;
+
+    // NEW: lock/unlock specific tiles by indices (used in Level 4)
+    void SetLocked(const std::vector<int>& indices, bool locked = true);
 
 private:
     Rectangle TileRect(int index) const;

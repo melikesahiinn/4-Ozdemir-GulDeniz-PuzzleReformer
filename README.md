@@ -26,6 +26,8 @@ When all tiles are aligned correctly, the level is completed and the next level 
 - **Level 1:** 3×3 grid (tutorial)
 - **Level 2:** 4×4 grid
 - **Level 3:** 5×5 grid
+- **Level 4:** 6x6 grid (locked tiles introduced)
+- **Level 5:** 7x7 grid (move-limit final challenge)
 
 Difficulty increases by grid size and number of tiles.
 
@@ -38,7 +40,9 @@ Difficulty increases by grid size and number of tiles.
 - Visual feedback (selected tile + correct tiles)
 - Hint toggle (show correct rotations)
 - Modular C++ architecture (separate game/grid/tile modules)
-- Level progression (3×3 → 4×4 → 5×5)
+- Level progression (3x3 to 4x4 to 5x5 to 6x6 to 7x7)
+- Level 4 rule: Locked tiles (cannot be selected/rotated, shown with red X)
+- Level 5 rule: Move limit (exceeding the limit resets the level)
 - 60 FPS fixed game loop
 ---
 
@@ -53,12 +57,14 @@ cmake --build build
 ```
 
 ### Windows (MSYS2 MinGW64)
+```bash 
 # In the MSYS2 MinGW64 terminal
 pacman -S --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-raylib
 
 cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build
 ./build/TileRotationPuzzle.exe
+```
 
 
 ---

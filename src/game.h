@@ -44,4 +44,9 @@ private:
     Grid m_grid;
 
     bool m_showHint = true;
+
+    // NEW: Level 5 "final test" rule (move limit)
+    int m_moves = 0;
+    int m_moveLimit = -1;   // -1 = unlimited
+    float m_limitMsgT = 0.0f; // seconds to show "limit exceeded" message (optional)
 };

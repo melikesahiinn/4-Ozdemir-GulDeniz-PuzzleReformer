@@ -7,6 +7,7 @@
 **Tile Rotation Puzzle** is a 2D grid-based puzzle game developed using Raylib (C++).
 The player rotates tiles to match their correct orientations and complete each level.
 The game focuses on logical thinking and pattern recognition.
+Later levels introduce special constraints such as locked tiles and a move limit.
 
 ---
 
@@ -40,6 +41,14 @@ Puzzle
 - All tiles must be aligned correctly to finish the level.
 - Completion triggers the Level Complete screen.
 
+### 4.5 Locked Tiles (Level 4)
+- Some tiles are locked and cannot be selected or rotated.
+- Locked tiles are displayed with a red X overlay and are pre-aligned correctly.
+
+### 4.6 Move Limit (Level 5)
+- Level 5 introduces a move limit.
+- Exceeding the move limit resets the level.
+
 ---
 
 ## 5. Game States
@@ -59,6 +68,8 @@ The game uses a state machine system:
 | 1 | 3×3 | Easy (tutorial) |
 | 2 | 4×4 | Medium |
 | 3 | 5×5 | Hard |
+| 4 | 6×6 | Hard+ (locked tiles introduced) |
+| 5 | 7×7 | Final (move limit challenge) |
 
 Difficulty increases with grid size and number of tiles.
 
@@ -95,6 +106,7 @@ Difficulty increases with grid size and number of tiles.
 - Version control: GitHub with incremental commits
 - Grid system: **grid.h / grid.cpp** manages grid layout, selection logic, rotation calls, drawing, and solve-check iteration.
 - Tile system: **tile.h / tile.cpp** defines tile data (current/correct rotation, selection state) and supports animated 90° rotation rendering.
+- Special level rules: Level 4 uses locked tile indices; Level 5 enforces a move counter and move limit in the game loop.
 
 ---
 

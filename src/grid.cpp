@@ -17,6 +17,7 @@ void Grid::ApplyLevel(int n, int tileSize, int originX, int originY,
 
     for (int i = 0; i < (int)m_tiles.size(); i++) {
         m_tiles[i].Reset(correct[i], start[i]);
+        m_tiles[i].locked = false; // NEW: default unlocked each level
     }
 }
 
@@ -47,6 +48,9 @@ int Grid::PickTile(Vector2 mousePos) const {
 void Grid::Select(int index) {
     if (index < 0 || index >= (int)m_tiles.size()) return;
 
+    // NEW: do not allow selecting locked tiles
+    if (m_tiles[index].locked) return;
+
     if (m_selectedIndex != -1) m_tiles[m_selectedIndex].selected = false;
     m_selectedIndex = index;
     m_tiles[m_selectedIndex].selected = true;
@@ -54,6 +58,9 @@ void Grid::Select(int index) {
 
 bool Grid::RotateSelected() {
     if (m_selectedIndex < 0 || m_selectedIndex >= (int)m_tiles.size()) return false;
+
+    // NEW: cannot rotate locked tile
+    if (m_tiles[m_selectedIndex].locked) return false;
 
     m_tiles[m_selectedIndex].StartRotateCW();
     return true;
@@ -66,11 +73,38 @@ bool Grid::IsSolved() const {
     return true;
 }
 
+// NEW: lock/unlock specific tiles (Level 4 rule)
+void Grid::SetLocked(const std::vector<int>& indices, bool locked) {
+    for (int idx : indices) {
+        if (idx < 0 || idx >= (int)m_tiles.size()) continue;
+
+        m_tiles[idx].locked = locked;
+
+        // If locked, force correct orientation so puzzle remains solvable
+        if (locked) {
+            m_tiles[idx].rotation = m_tiles[idx].correctRotation;
+            m_tiles[idx].animFrom = m_tiles[idx].rotation;
+            m_tiles[idx].animTo   = m_tiles[idx].rotation;
+            m_tiles[idx].animT    = 1.0f;
+            m_tiles[idx].selected = false;
+            if (m_selectedIndex == idx) m_selectedIndex = -1;
+        }
+    }
+}
+
 void Grid::Draw(bool showHint) const {
     for (int i = 0; i < (int)m_tiles.size(); i++) {
         const Tile& t = m_tiles[i];
         Rectangle rc = TileRect(i);
+
         t.Draw(rc, showHint);
+
+        // NEW: overlay for locked tiles
+        if (t.locked) {
+            DrawRectangleRec(rc, Fade(RED, 0.10f));
+            DrawLineEx({rc.x + 10, rc.y + 10}, {rc.x + rc.width - 10, rc.y + rc.height - 10}, 4.0f, Fade(RED, 0.70f));
+            DrawLineEx({rc.x + rc.width - 10, rc.y + 10}, {rc.x + 10, rc.y + rc.height - 10}, 4.0f, Fade(RED, 0.70f));
+        }
     }
 
     Rectangle border = { (float)m_originX, (float)m_originY,

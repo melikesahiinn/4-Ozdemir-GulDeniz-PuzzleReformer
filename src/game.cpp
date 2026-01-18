@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 Game::Game(int screenW, int screenH) : m_w(screenW), m_h(screenH) {}
 
@@ -22,6 +23,35 @@ void Game::LoadLevel(int index) {
     int originY = (m_h - gridPx) / 2 + 40;
 
     m_grid.ApplyLevel(lvl.n, lvl.tileSize, originX, originY, lvl.correct, lvl.start);
+
+    // --- NEW: per-level rule state reset ---
+    m_moves = 0;
+    m_moveLimit = -1;
+    m_limitMsgT = 0.0f;
+
+    // Helper for (r,c) -> index
+    auto idx = [&](int r, int c) { return r * lvl.n + c; };
+
+    // --- NEW: Level 4 rule (locked tiles introduced) ---
+    // Level numbers are 1-based in UI, but m_levelIndex is 0-based.
+    if (m_levelIndex == 3) { // Level 4
+        int n = lvl.n; // expected 6
+        int mid1 = n / 2 - 1;
+        int mid2 = n / 2;
+
+        std::vector<int> locks = {
+            idx(0,0), idx(0,n-1), idx(n-1,0), idx(n-1,n-1),     // corners
+            idx(mid1,mid1), idx(mid1,mid2), idx(mid2,mid1), idx(mid2,mid2) // center 2x2
+        };
+
+        m_grid.SetLocked(locks, true);
+    }
+
+    // --- NEW: Level 5 rule (final test: move limit) ---
+    if (m_levelIndex == 4) { // Level 5
+        m_moveLimit = lvl.n * lvl.n * 2; // e.g., 7*7*2 = 98
+        m_showHint = false;              // start harder; player can toggle with H
+    }
 }
 
 void Game::ResetLevel() {
@@ -66,17 +96,32 @@ void Game::UpdateMainMenu() {
 void Game::UpdatePlaying(float dt) {
     m_grid.Update(dt);
 
+    // NEW: message timer decay
+    if (m_limitMsgT > 0.0f) {
+        m_limitMsgT -= dt;
+        if (m_limitMsgT < 0.0f) m_limitMsgT = 0.0f;
+    }
+
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         int idx = m_grid.PickTile(GetMousePosition());
         if (idx != -1) m_grid.Select(idx);
     }
 
     if (IsKeyPressed(KEY_R)) {
-        m_grid.RotateSelected();
+        if (m_grid.RotateSelected()) {
+            m_moves++;
+
+            // NEW: Level 5 move limit enforcement
+            if (m_moveLimit > 0 && m_moves > m_moveLimit) {
+                ResetLevel();
+                m_limitMsgT = 1.6f; // show warning after reset
+            }
+        }
     }
 
     if (IsKeyPressed(KEY_BACKSPACE)) {
         ResetLevel();
+        m_limitMsgT = 0.0f;
     }
 
     if (IsKeyPressed(KEY_H)) {
@@ -107,13 +152,8 @@ void Game::Draw() {
     }
 
     DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, DARKGRAY);
-
-    
-
     DrawFadeOverlay();
 }
-
-
 
 void Game::DrawMainMenu() {
     DrawText("TILE ROTATION PUZZLE", m_w/2 - 220, 120, 42, BLACK);
@@ -132,6 +172,17 @@ void Game::DrawMainMenu() {
 void Game::DrawPlaying() {
     DrawText(TextFormat("Level %d / %d", m_levelIndex + 1, m_totalLevels), 20, 40, 26, BLACK);
     DrawText("R: rotate | Backspace: reset | H: hint", 20, 70, 18, DARKGRAY);
+
+    // NEW: move counter display
+    if (m_moveLimit > 0) {
+        DrawText(TextFormat("Moves: %d / %d", m_moves, m_moveLimit), 20, 95, 18, DARKGRAY);
+    } else {
+        DrawText(TextFormat("Moves: %d", m_moves), 20, 95, 18, DARKGRAY);
+    }
+
+    if (m_limitMsgT > 0.0f) {
+        DrawText("Move limit exceeded! Level reset.", 20, 120, 18, RED);
+    }
 
     m_grid.Draw(m_showHint);
 }
